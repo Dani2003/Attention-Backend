@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --navy-50: #e8eef7;
+    --navy-100: #c5d5ea;
+    --navy-200: #9fb9dc;
+    --navy-300: #789dce;
+    --navy-400: #5b87c4;
+    --navy-500: #3d71ba;
+    --navy-600: #3669b3;
+    --navy-700: #2d5eab;
+    --navy-800: #2554a3;
+    --navy-900: #164294;
+    --navy-950: #0A1929;
+    
+    --airforce-50: #e6f2ff;
+    --airforce-100: #b3d9ff;
+    --airforce-200: #80c0ff;
+    --airforce-300: #4da6ff;
+    --airforce-400: #1a8cff;
+    --airforce-500: #00308F;
+    --airforce-600: #002d82;
+    --airforce-700: #002975;
+    --airforce-800: #002668;
+    --airforce-900: #00234e;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+body {
+  background-color: var(--navy-950);
+  color: #E0E7FF;
+}
+
+.gradient-navy {
+  background: linear-gradient(135deg, #001f3f 0%, #003366 50%, #00308F 100%);
+}
+
+.gradient-airforce {
+  background: linear-gradient(135deg, #00308F 0%, #5D8AA8 50%, #4682B4 100%);
+}
+
+.card-glass {
+  background: rgba(13, 27, 42, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(93, 138, 168, 0.2);
+}
+
+.input-navy {
+  background-color: rgba(13, 27, 42, 0.8);
+  border: 1px solid rgba(93, 138, 168, 0.3);
+  color: #E0E7FF;
+}
+
+.input-navy:focus {
+  outline: none;
+  border-color: #5D8AA8;
+  box-shadow: 0 0 0 3px rgba(93, 138, 168, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #00308F 0%, #5D8AA8 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #002d82 0%, #4682B4 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 48, 143, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #003366 0%, #001f3f 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #002d82 0%, #002147 100%);
+  transform: translateY(-2px);
+}
