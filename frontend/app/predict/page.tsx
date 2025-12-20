@@ -1,175 +1,128 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
 
-const API_BASE = 'https://bert-story-api.proudsea-fc459dc9.eastus.azurecontainerapps.io'
-
-export default function PredictPage() {
-  const [inputText, setInputText] = useState('')
-  const [prediction, setPrediction] = useState<string | null>(null)
+export default function Predict() {
+  const [text, setText] = useState('')
+  const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState('')
 
-  const handlePredict = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!inputText.includes('[MASK]')) {
-      setError('Please include [MASK] token in your input text')
+    if (!text.includes('[MASK]')) {
+      setError('Please include [MASK] in your text')
       return
     }
 
     setLoading(true)
-    setError(null)
-    setPrediction(null)
+    setError('')
+    setResult('')
 
     try {
-      const response = await fetch(`${API_BASE}/predict`, {
+      const res = await fetch('https://bert-story-api.proudsea-fc459dc9.eastus.azurecontainerapps.io/predict', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: inputText }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
       })
 
-      if (!response.ok) {
-        throw new Error('Prediction request failed')
-      }
+      if (!res.ok) throw new Error('Request failed')
 
-      const data = await response.json()
-      setPrediction(data.predictions?.[0] || 'No prediction available')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      const data = await res.json()
+      setResult(data.predictions?.[0] || 'No prediction')
+    } catch {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  const exampleSentences = [
-    'The capital of France is [MASK].',
-    'I love to eat [MASK] for breakfast.',
+  const examples = [
     'The [MASK] is shining brightly today.',
+    'I love to eat [MASK] for breakfast.',
     'She plays the [MASK] beautifully.',
+    'The [MASK] chased the mouse across the room.',
   ]
 
-  const loadExample = (example: string) => {
-    setInputText(example)
-    setPrediction(null)
-    setError(null)
-  }
-
   return (
-    <main className="min-h-screen gradient-navy py-12 px-4">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen p-6">
+      
+      <div className="max-w-3xl mx-auto space-y-10 py-12">
+        
         {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-white">
-            BERT Word Prediction
-          </h1>
-          <p className="text-xl text-blue-200 max-w-2xl mx-auto">
-            Advanced masked language modeling for context-aware word prediction
-          </p>
+        <div className="space-y-2">
+          <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors inline-block mb-4">
+            ← Back
+          </Link>
+          <h1 className="text-5xl font-light">Word Prediction</h1>
+          <p className="text-xl text-gray-600">Use [MASK] to mark words you want predicted</p>
         </div>
 
-        {/* Main Card */}
-        <div className="card-glass p-8 rounded-2xl space-y-6">
-          <form onSubmit={handlePredict} className="space-y-6">
-            <div>
-              <label htmlFor="input-text" className="block text-lg font-semibold text-white mb-3">
-                Enter your text with [MASK] token
-              </label>
-              <textarea
-                id="input-text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                className="input-navy w-full p-4 rounded-lg text-lg min-h-[120px] resize-y"
-                placeholder="Example: The [MASK] chased the mouse."
-                required
-              />
-              <p className="text-sm text-blue-300 mt-2">
-                Use [MASK] to indicate where you want the model to predict a word
-              </p>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
+          <div>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Example: The [MASK] chased the mouse."
+              className="w-full border border-gray-300 rounded-xl p-5 text-lg focus:outline-none focus:border-black transition-colors resize-none"
+              rows={5}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-black text-white py-4 rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
+          >
+            {loading ? 'Predicting...' : 'Predict'}
+          </button>
+
+        </form>
+
+        {/* Error */}
+        {error && (
+          <div className="border border-red-300 bg-red-50 text-red-800 p-4 rounded-xl">
+            {error}
+          </div>
+        )}
+
+        {/* Result */}
+        {result && (
+          <div className="border border-gray-300 rounded-xl p-8 space-y-4 bg-white">
+            <div className="text-sm text-gray-500 uppercase tracking-wide">Prediction</div>
+            <div className="text-3xl font-medium">{result}</div>
+            <div className="pt-4 border-t border-gray-100">
+              <div className="text-gray-600">{text.replace('[MASK]', result)}</div>
             </div>
+          </div>
+        )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full py-4 rounded-lg text-white font-semibold text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                'Predict Word'
-              )}
-            </button>
-          </form>
-
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-red-300">Error</h3>
-                <p className="text-red-200">{error}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Prediction Result */}
-          {prediction && (
-            <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-6 space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-6 h-6 text-green-400" />
-                <h3 className="text-xl font-semibold text-green-300">Prediction Result</h3>
-              </div>
-              <div className="bg-navy-950/50 p-4 rounded-lg">
-                <p className="text-2xl font-bold text-white">{prediction}</p>
-              </div>
-              <p className="text-sm text-blue-300">
-                Original: {inputText.replace('[MASK]', `[${prediction}]`)}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Example Sentences */}
-        <div className="card-glass p-6 rounded-2xl space-y-4">
-          <h2 className="text-xl font-bold text-white">Try These Examples</h2>
-          <div className="grid md:grid-cols-2 gap-3">
-            {exampleSentences.map((example, idx) => (
+        {/* Examples */}
+        <div className="pt-8 space-y-4">
+          <div className="text-sm text-gray-500 uppercase tracking-wide">Example Sentences</div>
+          <div className="grid gap-3">
+            {examples.map((example, i) => (
               <button
-                key={idx}
-                onClick={() => loadExample(example)}
-                className="text-left p-4 bg-navy-900/50 hover:bg-navy-800/50 rounded-lg border border-blue-500/20 hover:border-blue-400/40 transition-all"
+                key={i}
+                onClick={() => {
+                  setText(example)
+                  setResult('')
+                  setError('')
+                }}
+                className="text-left p-4 border border-gray-200 rounded-lg hover:border-black transition-colors text-gray-700 hover:text-black"
               >
-                <p className="text-blue-200">{example}</p>
+                {example}
               </button>
             ))}
           </div>
         </div>
 
-        {/* How It Works */}
-        <div className="card-glass p-6 rounded-2xl space-y-4">
-          <h2 className="text-xl font-bold text-white">How It Works</h2>
-          <div className="space-y-3 text-blue-200">
-            <p className="flex items-start gap-3">
-              <span className="text-cyan-300 font-bold flex-shrink-0">1.</span>
-              <span>Enter a sentence with one [MASK] token where you want to predict a word</span>
-            </p>
-            <p className="flex items-start gap-3">
-              <span className="text-cyan-300 font-bold flex-shrink-0">2.</span>
-              <span>Our BERT model analyzes the surrounding context bidirectionally</span>
-            </p>
-            <p className="flex items-start gap-3">
-              <span className="text-cyan-300 font-bold flex-shrink-0">3.</span>
-              <span>The most contextually appropriate word is predicted and displayed</span>
-            </p>
-          </div>
-        </div>
       </div>
-    </main>
+    </div>
   )
 }
