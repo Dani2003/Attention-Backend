@@ -85,7 +85,7 @@ def generate_story(theme: str) -> str:
         print(f"📥 Theme received: {theme}")
         print(f"📝 Prompt generated: {prompt}")
         
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash-latest")
         chat = model.start_chat(history=[])
         print("✅ Gemini model loaded")
         
